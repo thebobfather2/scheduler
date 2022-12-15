@@ -15,6 +15,7 @@ $(function () {
 
   // call functions
   renderScheduler();
+  checkTime();
   renderStorage();
 
 });
@@ -77,6 +78,25 @@ $(function () {
     }
     )
   }
+
+    // color-code past, present, or future.
+    function checkTime() {
+      var currentHour = dayjs().hour();
+      $(".row").each(function () {
+        var hourId = $(this).attr("id");
+        // slice to get the hour block
+        var timeBlockHour = parseInt(hourId.slice(5));
+        if (currentHour > timeBlockHour) {
+          $(this).addClass('past')
+        }
+        else if (currentHour == timeBlockHour) {
+          $(this).addClass('present')
+        }
+        else if (currentHour < timeBlockHour) {
+          $(this).addClass('future')
+        }
+      });
+    }
 
   // make the time use 12 hr
   function checkAmPm(hour) {
