@@ -2,30 +2,93 @@
 // the code isn't run until the browser has finished rendering all the elements
 // in the html.
 
+// global variables
+const nine = 9;
+const twelve = 12;
+const eighteen = 18;
+const div = "<div>";
+
 $(function () {
 
   // display current day and time
   $("#currentDay").text(dayjs().format('MMMM D, YYYY h:mm A'));
 
+  // call functions
+  renderScheduler();
+  renderStorage();
 
-
-
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
 });
+
+  function renderScheduler() {
+    // loop during working hours
+    for (hour = nine; hour < eighteen; hour++) {
+      var timeBlockContainer = $(div);
+      timeBlockContainer.attr('id', 'hour-' + `${hour}`);
+      timeBlockContainer.addClass("row");
+  
+      // child elements of time block container
+      var hourContainer = $(div);
+      hourContainer.addClass("col-1 hour");
+      hourContainer.text(checkAmPm(hour));
+  
+      var textareaEl = $("<textarea>");
+      textareaEl.addClass("col-10 plan");
+  
+      var buttonEl = $("<button>");
+      buttonEl.attr("id", "save");
+      buttonEl.addClass("col-1");
+      buttonEl.text("Save");
+  
+      var iconEl = $("<i>");
+      iconEl.addClass("fa fa-save");
+      buttonEl.prepend(iconEl);
+  
+      // appends the child elements to time block containers
+      timeBlockContainer.append(hourContainer);
+      timeBlockContainer.append(textareaEl);
+      timeBlockContainer.append(buttonEl);
+  
+      // append time block container to scheduler container
+      $("#scheduler").append(timeBlockContainer);
+    }
+
+    $(".row").click(function (event) {
+      var target = $(event.target); // locates where user clicks
+      if (target.is("button")) {  // only execute if the button is clicked
+        var hourId = $(this).attr("id");
+        var plan = $(this).find(".plan").val();
+        if (plan !== "") { // only be store if there is information in the text field
+          // save to local storage using the hour block id so it displays in the right place
+          localStorage.setItem(hourId, plan);
+        }
+      }
+    }
+    )
+  }
+  
+  // display events in local storage
+  function renderStorage() {
+    $(".row").each(function () {
+      var hourId = $(this).attr("id");
+      var plan = localStorage.getItem(hourId);
+      if (plan !== null) {
+        $(this).children(".plan").val(plan);
+      }
+    }
+    )
+  }
+
+  // make the time use 12 hr
+  function checkAmPm(hour) {
+    if (hour > twelve) {
+      hour -= twelve;
+      hour += " pm"
+    }
+    else if (hour === twelve) {
+      hour += " pm"
+    }
+    else {
+      hour += " am"
+    }
+    return hour;
+  }
